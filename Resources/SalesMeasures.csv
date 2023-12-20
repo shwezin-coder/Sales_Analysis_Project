@@ -1,0 +1,22 @@
+MEASURE_NAME,EXPRESSION
+Total IS CY,SUM(FactInternetSales[SalesAmount])
+Total Quantity IS,SUM(FactInternetSales[OrderQuantity])
+Total IS PY,"CALCULATE([Total IS CY], SAMEPERIODLASTYEAR(DimDate[FullDateAlternateKey]))"
+Total Cost IS,SUM(FactInternetSales[ProductStandardCost])
+Total Cost RS,SUM(FactResellerSales[ProductStandardCost])
+Total Qty RS,SUM(FactResellerSales[OrderQuantity])
+Margin IS,[Total IS CY] - [Total Cost IS]
+Total RS CY,SUM(FactResellerSales[SalesAmount])
+Total RS PY,"CALCULATE([Total RS CY], SAMEPERIODLASTYEAR(DimDate[FullDateAlternateKey]))"
+Margin RS,[Total RS CY] - [Total Cost RS]
+% Margin IS,"DIVIDE([Margin IS], [Total IS CY])"
+% Margin RS,"DIVIDE([Margin RS], [Total RS CY])"
+Total Sales,[Total IS CY] + [Total RS CY]
+Total Cost,[Total Cost IS] + [Total Cost RS]
+Gross Profit,[Total Sales] - [Total Cost]
+% Gross Profit,"DIVIDE([Gross Profit], [Total Sales])"
+MSI1,"SELECTEDVALUE(InternetMeasure[Name],""Sales"")"
+MSI2,"SELECTEDVALUE(ResellerMeasure[Name], ""Sales"")"
+MSI1 Logic,"SWITCH(TRUE(),     [MSI1] = ""Sales"", [Total IS CY],     [MSI1] = ""Cost"", [Total Cost IS],     [MSI1] = ""Profit"", [Margin IS],     [Total IS CY])"
+MSI2 Logic,"SWITCH(TRUE(),     [MSI2] = ""Sales"", [Total RS CY],     [MSI2] = ""Cost"", [Total Cost RS],     [MSI2] = ""Profit"", [Margin RS],     [Total RS CY])"
+__Default measure,1
